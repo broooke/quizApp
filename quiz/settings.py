@@ -25,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '(@_lu_=p$p*jkxcyiv#cg-z2s@*&!ro(sawq3%pgu7m8x-7)nl'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['oprosnik-test.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
