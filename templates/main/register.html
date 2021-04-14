@@ -1,0 +1,30 @@
+{% extends 'base/basic.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'main/navbar.html' %}
+<style>
+    .box-element{
+        box-shadow:hsl(0, 0%, 80%) 0 0 16px;
+        background-color: #fff;
+        border-radius: 4px;
+        padding: 10px;
+    }
+
+    .product{
+        border-radius: 0 0 4px 4px;
+    }
+</style>
+<div style="margin:auto; margin-top: 200px;" class="col-lg-5">
+    <div class="box-element product p-5">
+        <h1 class="text-center">Регистрация</h1>
+        <hr>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+
+            <div class="d-grid gap-2">
+              <input value="Зарегистрироваться" type="submit" class="btn btn-primary mt-2">
+            </div>
+        </form>
+    </div
+{% endblock %}

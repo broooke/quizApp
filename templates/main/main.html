@@ -1,0 +1,37 @@
+{% extends 'base/basic.html' %}
+{% block content %}
+{% include 'main/navbar.html' %}
+<!--<div style="max-width: 750px; margin: auto; margin-top: 300px;" class="card text-center">-->
+<!--    <h1 class="card-header">Добро пожаловать в онлайн опросник!</h1>-->
+<!--     <div class="card-body">-->
+<!--        <h5>Для того, чтобы пройти опрос, необходимо зарегистрироваться</h5>-->
+<!--        <p>Для этого нажмите на кнопку ниже</p>-->
+<!--        <span class="material-icons">arrow_downward</span>-->
+<!--        <br>-->
+<!--        <button class="btn btn-primary p-3"><span class="material-icons">person_add_alt</span><br> Зарегистрироваться</button>-->
+<!--     </div>-->
+<!--</div>-->
+<style>
+    .box-element{
+        box-shadow:hsl(0, 0%, 80%) 0 0 16px;
+        background-color: #fff;
+        border-radius: 4px;
+        padding: 10px;
+    }
+
+    .product{
+        border-radius: 0 0 4px 4px;
+    }
+</style>
+<div style="margin:auto; margin-top: 300px;" class="col-lg-5 text-center">
+    <div class="box-element product p-5">
+        <h1>Добро пожаловать в онлайн опросник!</h1>
+        <hr>
+        <h5>Для того, чтобы пройти опрос, необходимо зарегистрироваться</h5>
+        <p>Для этого нажмите на кнопку ниже</p>
+        <span class="material-icons">arrow_downward</span>
+        <br>
+        <a href="{% url 'login' %}"><button class="btn btn-primary p-3"><span class="material-icons">person_add_alt</span><br>Войти в аккаунт</button></a>
+    </div>
+</div>
+{% endblock %}
