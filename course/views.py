@@ -12,11 +12,11 @@ from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, FormView, CreateView, ListView, DetailView
 from django.views.generic.base import View
-from django.views.generic.edit import ProcessFormView
+from django.views.generic.edit import ProcessFormView, UpdateView
 from django.views.decorators.csrf import csrf_protect
 
 from .decorators import admin_only
-from .forms import UserRegisterForm
+from .forms import UserRegisterForm, CourseForm, QuestionForm, UserUpdateForm
 from .models import Course, Result, Answer, Question
 from django.contrib import messages
 
@@ -98,8 +98,15 @@ class UserCoursesView(ListView):
 @method_decorator(login_required(login_url='login'), name='dispatch')
 class UserCourseView(DetailView):
     model = Course
-    template_name = 'main/courseUser.html'
+    template_name = 'main/userCourse.html'
     slug_field = 'id'
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if request.user in self.object.customers.all():
+            return redirect('user-courses')
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -173,5 +180,125 @@ class UserLogoutView(LogoutView):
     next_page = reverse_lazy('main-page')
 
 
+@method_decorator(login_required(login_url='login-admin'), name='dispatch')
+@method_decorator(admin_only, name='dispatch')
+class AdminUsersView(ListView):
+    model = User
+    template_name = 'main/adminUsers.html'
 
+
+@method_decorator(login_required(login_url='login-admin'), name='dispatch')
+@method_decorator(admin_only, name='dispatch')
+class DeleteUserView(View):
+
+    def post(self, request, pk):
+        user = User.objects.get(id=pk)
+        user.delete()
+        return redirect('admin-users')
+
+
+@method_decorator(login_required(login_url='login-admin'), name='dispatch')
+@method_decorator(admin_only, name='dispatch')
+class AdminCoursesView(ListView):
+    model = Course
+    template_name = 'main/adminCourses.html'
+
+
+@method_decorator(login_required(login_url='login-admin'), name='dispatch')
+@method_decorator(admin_only, name='dispatch')
+class AdminCourseView(DetailView):
+    model = Course
+    template_name = 'main/adminCourse.html'
+    slug_field = 'id'
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if request.user in self.object.customers.all():
+            return redirect('admin-courses')
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['questions'] = self.object.question_course.all()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        answer = request.POST
+        obj = self.get_object()
+        obj.customers.add(request.user)
+        questions = obj.question_course.all()
+        total_marks = 0
+        id = 1
+        for q in questions:
+            answer_q = answer[str(id)]
+            if answer_q == q.answer:
+                total_marks += q.mark
+            Answer.objects.create(
+                course=obj,
+                customer=request.user,
+                question=q,
+                answer=answer_q,
+            )
+            id += 1
+
+        Result.objects.create(
+            customer=request.user,
+            course=obj,
+            total_mark=total_marks,
+        )
+
+        return redirect('admin-courses')
+
+
+@method_decorator(login_required(login_url='login-admin'), name='dispatch')
+@method_decorator(admin_only, name='dispatch')
+class AdminAddCourseView(CreateView):
+    form_class = CourseForm
+    template_name = 'main/addCourse.html'
+    success_url = reverse_lazy('admin-courses')
+
+
+@method_decorator(login_required(login_url='login-admin'), name='dispatch')
+@method_decorator(admin_only, name='dispatch')
+class AdminQuestionsView(ListView):
+    model = Question
+    template_name = 'main/adminQuestion.html'
+
+
+@method_decorator(login_required(login_url='login-admin'), name='dispatch')
+@method_decorator(admin_only, name='dispatch')
+class AdminAddQuestionView(CreateView):
+    form_class = QuestionForm
+    template_name = 'main/addQuestion.html'
+    success_url = reverse_lazy('admin-questions')
+
+
+@method_decorator(login_required(login_url='login-admin'), name='dispatch')
+@method_decorator(admin_only, name='dispatch')
+class AdminUpdateQuestionView(UpdateView):
+    form_class = QuestionForm
+    model = Question
+    slug_field = 'id'
+    template_name = 'main/updateQuestion.html'
+    success_url = reverse_lazy('admin-questions')
+
+
+@method_decorator(login_required(login_url='login-admin'), name='dispatch')
+@method_decorator(admin_only, name='dispatch')
+class DeleteQuestionView(View):
+
+    def post(self, request, pk):
+        question = Question.objects.get(id=pk)
+        question.delete()
+        return redirect('admin-questions')
+
+
+@method_decorator(login_required(login_url='login'), name='dispatch')
+class UserUpdateView(UpdateView):
+    form_class = UserUpdateForm
+    model = User
+    slug_field = 'id'
+    template_name = 'main/updateUser.html'
+    success_url = reverse_lazy('user-dashboard')
 

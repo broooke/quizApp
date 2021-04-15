@@ -1,0 +1,224 @@
+{% extends 'base/basic.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+  <style media="screen">
+    a:link {
+      text-decoration: none;
+    }
+
+    .sidebar {
+      background-color: #4f868c!important;
+      padding-top: 30px;
+      margin-top: 55px;
+      position: fixed;
+      left: 0;
+      width: 250px;
+      height: 100%;
+      transition: 0.5s;
+      transition-property: left;
+    }
+
+    .sidebar .profile_image {
+      width: 100px;
+      height: 100px;
+      border-radius: 100px;
+      margin-bottom: 10px;
+    }
+
+    .sidebar h4 {
+      color: #ccc;
+      margin-top: 0;
+
+    }
+
+    .sidebar a {
+      color: #fff;
+      display: block;
+      width: 100%;
+      line-height: 60px;
+      text-decoration: none;
+      padding-left: 40px;
+      box-sizing: border-box;
+      transition: 0.5s;
+
+    }
+
+    .sidebar a:hover {
+      background: #19B3D3;
+    }
+
+    .sidebar i {
+      padding-right: 10px;
+    }
+
+    label #sidebar_btn {
+      z-index: 1;
+      color: #fff;
+      position: fixed;
+      cursor: pointer;
+      left: 300px;
+      font-size: 20px;
+      margin: 5px 0;
+      transition: 0.5s;
+      transition-property: color;
+    }
+
+    label #sidebar_btn:hover {
+      color: #19B3D3;
+    }
+
+    #check:checked~.sidebar {
+      left: -190px;
+    }
+
+    #check:checked~.sidebar a span {
+      display: none;
+    }
+
+    #check:checked~.sidebar a {
+      font-size: 20px;
+      margin-left: 170px;
+      width: 80px;
+    }
+
+    .content {
+      margin-left: 250px;
+      background-position: center;
+      background-size: cover;
+      height: 100vh;
+      transition: 0.5s;
+    }
+
+    #check:checked~.content {
+      margin-left: 60px;
+    }
+
+    #check {
+      display: none;
+    }
+
+    .bg-dark{
+        background-color: #4f868c!important;
+    }
+
+    .box-element{
+        box-shadow:hsl(0, 0%, 80%) 0 0 16px;
+        background-color: #fff;
+        border-radius: 4px;
+        padding: 10px;
+        max-width: 1700px;
+        margin: auto;
+    }
+
+    .product{
+        border-radius: 0 0 4px 4px;
+    }
+
+    #total-course{
+      background-color: #4cb4c7;
+    }
+
+    #total-done-course{
+      background-color: #7abecc;
+    }
+
+    #total-question{
+      background-color: #7CD1C0;
+    }
+
+  </style>
+
+  <input type="checkbox" id="check">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand mb-0 h1" href="#">Опросник</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          {% if request.user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'logout-user' %}">Выйти</a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'login' %}">Пользователь</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="{% url 'login-admin' %}">Админ</a>
+          </li>
+          {% endif %}
+          <label for="check">
+            <i style="margin-left: 15px; margin-top: 10px;" class="fas fa-bars text-center" id="sidebar_btn"></i>
+          </label>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!--sidebar start-->
+  <div class="sidebar">
+    <center>
+
+      <img src="{% static 'media/admin.png' %}" class="profile_image" alt="">
+      <h4>{{request.user.first_name}} {{request.user.last_name}}</h4>
+
+    </center>
+
+    <a href="{% url 'admin-dashboard' %}"><i class="fas fa-tachometer-alt"></i><span>Личный кабинет</span></a>
+    <a href="{% url 'admin-courses' %}"><i class="fas fa-book"></i><span>Опросы</span></a>
+      <a href="{% url 'admin-results' %}"><i class="fas fa-pen"></i><span>Результаты</span></a>
+      <a href="{% url 'admin-users' %}"><i class="fas fa-user"></i><span>Пользователи</span></a>
+  </div>
+  <!--sidebar end-->
+  <!--content start-->
+  <div class="content">
+    <br><br><br><br><br>
+      <div class="box-element product p-3">
+          <form method="POST">
+            {% csrf_token %}
+            <h1 style="text-align: center;">{{object.name}}</h1>
+              <hr>
+            {% for q in questions%}
+            <h3 class="text-info">{{ forloop.counter }}. {{q.name}}</h3><h4 style="text-align: right;">Оценка в баллах: {{q.mark}}</h4>
+
+                  <div class="form-check mx-4">
+                    <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="{{q.choice_1}}" value="choice_1">
+                    <label class="form-check-label" for="choice_1">
+                      {{q.choice_1}}
+                    </label>
+                  </div>
+
+
+                  <div class="form-check mx-4">
+                    <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="{{q.choice_2}}" value="choice_2">
+                    <label class="form-check-label" for="choice_2">
+                      {{q.choice_2}}
+                    </label>
+                  </div>
+
+
+                  <div class="form-check mx-4">
+                    <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="{{q.choice_3}}" value="choice_3">
+                    <label class="form-check-label" for="choice_3">
+                      {{q.choice_3}}
+                    </label>
+                  </div>
+
+
+                  <div class="form-check mx-4">
+                    <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="{{q.choice_4}}" value="choice_4">
+                    <label class="form-check-label" for="choice_4">
+                      {{q.choice_4}}
+                    </label>
+                  </div>
+              <hr>
+                {% endfor %}
+                <input class="btn btn-info btn-lg mt-3" type="submit" value="Отправить">
+            </form>
+        </div>
+    <br><br><br>
+  </div>
+{% endblock %}

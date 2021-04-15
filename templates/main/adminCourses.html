@@ -107,7 +107,7 @@
         background-color: #fff;
         border-radius: 4px;
         padding: 10px;
-        max-width: 1700px;
+        max-width: 1200px;
         margin: auto;
     }
 
@@ -132,7 +132,7 @@
   <input type="checkbox" id="check">
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <div class="container-fluid">
-      <a class="navbar-brand mb-0 h1" href="#">Опросник</a>
+      <a class="navbar-brand mb-0 h1" href="/">Опросник</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -162,63 +162,48 @@
   <div class="sidebar">
     <center>
 
-      <img src="{% static 'media/teacher.png' %}" class="profile_image" alt="">
+      <img src="{% static 'media/admin.png' %}" class="profile_image" alt="">
       <h4>{{request.user.first_name}} {{request.user.last_name}}</h4>
 
     </center>
 
-    <a href="{% url 'user-dashboard' %}"><i class="fas fa-tachometer-alt"></i><span>Личный кабинет</span></a>
-    <a href="{% url 'user-courses' %}"><i class="fas fa-book"></i><span>Опросы</span></a>
+    <a href="{% url 'admin-dashboard' %}"><i class="fas fa-tachometer-alt"></i><span>Личный кабинет</span></a>
+    <a href="{% url 'admin-courses' %}"><i class="fas fa-book"></i><span>Опросы</span></a>
+      <a href="{% url 'admin-results' %}"><i class="fas fa-pen"></i><span>Результаты</span></a>
+      <a href="{% url 'admin-users' %}"><i class="fas fa-user"></i><span>Пользователи</span></a>
+    <a href="{% url 'admin-questions' %}"><i class="fas fa-question"></i><span>Вопросы</span></a>
   </div>
   <!--sidebar end-->
   <!--content start-->
   <div class="content">
     <br><br><br><br><br>
-      <div class="box-element product p-3">
-          <form method="POST">
-            {% csrf_token %}
-            <h1 style="text-align: center;">{{object.name}}</h1>
-              <hr>
-            {% for q in questions%}
-            <h3 class="text-info">{{ forloop.counter }}. {{q.name}}</h3><h4 style="text-align: right;">Оценка в баллах: {{q.mark}}</h4>
-
-              <input type="hidden" name="csrfmiddlewaretoken" value="yfNyAL44ngB65fPrSvEPLPTvVN5MwoYIVmmX6ypSUlVvb9ezKnp3jbKTOjy7lwBz">
-
-                  <div class="form-check mx-4">
-                    <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="{{q.choice_1}}" value="choice_1">
-                    <label class="form-check-label" for="choice_1">
-                      {{q.choice_1}}
-                    </label>
-                  </div>
-
-
-                  <div class="form-check mx-4">
-                    <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="{{q.choice_2}}" value="choice_2">
-                    <label class="form-check-label" for="choice_2">
-                      {{q.choice_2}}
-                    </label>
-                  </div>
-
-
-                  <div class="form-check mx-4">
-                    <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="{{q.choice_3}}" value="choice_3">
-                    <label class="form-check-label" for="choice_3">
-                      {{q.choice_3}}
-                    </label>
-                  </div>
-
-
-                  <div class="form-check mx-4">
-                    <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="{{q.choice_4}}" value="choice_4">
-                    <label class="form-check-label" for="choice_4">
-                      {{q.choice_4}}
-                    </label>
-                  </div>
-              <hr>
-                {% endfor %}
-                <input class="btn btn-info btn-lg mt-3" type="submit" value="Отправить">
-            </form>
+      <div class="container">
+        <div class="box-element product p-5 text-center">
+          <a href="{% url 'admin-add-course' %}"><button style="float: right;" class="btn btn-primary">Добавить курс</button></a>
+          <h3>Тесты</h3>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Наименование теста</th>
+                <th>Переход к тесту</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for course in object_list %}
+              <tr>
+                <td>{{course.name}}</td>
+                {% if request.user in course.customers.all %}
+                <td><button class="btn btn-primary">Вы уже прошли этот тест</button></td>
+                {% else %}
+                <td><a href="{% url 'admin-course' course.id %}"><button class="btn btn-primary">Пройти тест</button></a></td>
+                {% endif %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
+      </div>
     <br><br><br>
   </div>
+  <!--content end-->
 {% endblock %}
